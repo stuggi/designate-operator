@@ -32,7 +32,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
@@ -60,7 +59,6 @@ func SetupDesignateDefaults(defaults DesignateDefaults) {
 	designatelog.Info("Designate defaults initialized", "defaults", defaults)
 }
 
-var _ webhook.Defaulter = &Designate{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *Designate) Default() {
@@ -157,7 +155,6 @@ func (spec *DesignateSpecBase) validateDeprecatedFieldsUpdate(old DesignateSpecB
 	return common_webhook.ValidateDeprecatedFieldsUpdate(deprecatedFields, basePath)
 }
 
-var _ webhook.Validator = &Designate{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *Designate) ValidateCreate() (admission.Warnings, error) {

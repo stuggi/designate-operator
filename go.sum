@@ -174,10 +174,10 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
-github.com/stuggi/lib-common/modules/common v0.0.0-20260807111253-08c9a0504119 h1:U7niTpzaR0W1vQ1xH6d+qAN33lNyof1ur2S+oMVFoIY=
-github.com/stuggi/lib-common/modules/common v0.0.0-20260807111253-08c9a0504119/go.mod h1:LY+Q6ms3A6E8DAKCpmvQaUxO5O2CKYm0XMcmTZ6PCcM=
-github.com/stuggi/lib-common/modules/serviceuser v0.0.0-20260807111253-08c9a0504119 h1:E//rVuf3aKe0or5ns98cliKkeWAuYcvtbBJJV7AFqek=
-github.com/stuggi/lib-common/modules/serviceuser v0.0.0-20260807111253-08c9a0504119/go.mod h1:Ar+E9jVSwWc5oSccDznucVW7UCPMltwpVQRgTwfUK5M=
+github.com/stuggi/lib-common/modules/common v0.0.0-20260810105957-4b466346f37d h1:U3Wbt6CqGp7fSzJAfzITbAhIW7MAmxpI491aaB70cP8=
+github.com/stuggi/lib-common/modules/common v0.0.0-20260810105957-4b466346f37d/go.mod h1:LY+Q6ms3A6E8DAKCpmvQaUxO5O2CKYm0XMcmTZ6PCcM=
+github.com/stuggi/lib-common/modules/serviceuser v0.0.0-20260810105957-4b466346f37d h1:jyhES8YVihREz4XibRF5o/5jb/zByGl2yHoz0WrD2kA=
+github.com/stuggi/lib-common/modules/serviceuser v0.0.0-20260810105957-4b466346f37d/go.mod h1:Ar+E9jVSwWc5oSccDznucVW7UCPMltwpVQRgTwfUK5M=
 github.com/tidwall/gjson v1.18.0 h1:FIDeeyB800efLX89e5a8Y0BNH+LOngJyGrIWxG2FKQY=
 github.com/tidwall/gjson v1.18.0/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=

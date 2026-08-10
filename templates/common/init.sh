@@ -22,6 +22,8 @@ set -ex
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 . ${SCRIPTPATH}/common.sh --source-only
 
+# Clean any partial state from a previous init run (crash + restart)
+rm -rf /var/lib/config-data/merged/* /var/lib/config-data/config-overwrites/*
 
 # Merge all templates from core config secret
 for dir in /var/lib/config-data/default; do

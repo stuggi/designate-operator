@@ -26,6 +26,7 @@ import (
 	"github.com/openstack-k8s-operators/lib-common/modules/common/backup"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/env"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/util"
+	"github.com/openstack-k8s-operators/lib-common/modules/serviceuser"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -123,7 +124,10 @@ func StatefulSet(
 				Spec: corev1.PodSpec{
 					ServiceAccountName:           instance.Spec.ServiceAccount,
 					AutomountServiceAccountToken: ptr.To(false),
-					Volumes:                      serviceVolumes,
+					SecurityContext: &corev1.PodSecurityContext{
+						FSGroup: ptr.To(serviceuser.NamedGID),
+					},
+					Volumes: serviceVolumes,
 					Containers: []corev1.Container{
 						{
 							Name:  serviceName,
@@ -136,7 +140,11 @@ func StatefulSet(
 								"-u", "named",
 								"-c", "/etc/named.conf", "-f",
 							},
-							Env:            env.MergeEnvs([]corev1.EnvVar{}, envVars),
+							SecurityContext: &corev1.SecurityContext{
+								RunAsUser:    ptr.To[int64](0),
+								RunAsNonRoot: ptr.To(false),
+							},
+							Env: env.MergeEnvs([]corev1.EnvVar{}, envVars),
 							VolumeMounts:   getServicePodVolumeMounts(instance.Name + PVCSuffix),
 							Resources:      instance.Spec.Resources,
 							LivenessProbe:  livenessProbe,

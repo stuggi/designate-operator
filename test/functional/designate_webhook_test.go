@@ -25,10 +25,91 @@ import (
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+func designateWithServicePortNames(name string, portNames map[string]string) *unstructured.Unstructured {
+	serviceOverrides := map[string]any{}
+	for endpoint, portName := range portNames {
+		serviceOverrides[endpoint] = map[string]any{
+			"spec": map[string]any{
+				"ports": []any{map[string]any{
+					"name": portName,
+					"port": int64(9001),
+				}},
+			},
+		}
+	}
+	spec := GetDefaultDesignateSpec(0, 0, 0)
+	spec["designateAPI"] = map[string]any{
+		"override": map[string]any{
+			"service": serviceOverrides,
+		},
+	}
+	return &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "designate.openstack.org/v1beta1",
+		"kind":       "Designate",
+		"metadata": map[string]any{
+			"name":      name,
+			"namespace": namespace,
+		},
+		"spec": spec,
+	}}
+}
+
+func setDesignateServicePortName(obj *unstructured.Unstructured, endpoint, portName string) {
+	spec := obj.Object["spec"].(map[string]any)
+	designateAPI := spec["designateAPI"].(map[string]any)
+	override := designateAPI["override"].(map[string]any)
+	serviceOverrides := override["service"].(map[string]any)
+	serviceOverride := serviceOverrides[endpoint].(map[string]any)
+	serviceSpec := serviceOverride["spec"].(map[string]any)
+	ports := serviceSpec["ports"].([]any)
+	ports[0].(map[string]any)["name"] = portName
+}
+
 var _ = Describe("Designate webhook", func() {
+	It("validates public and internal Service port names on create and update", func() {
+		valid := designateWithServicePortNames("designate-port-name-valid", map[string]string{
+			"public":   "public",
+			"internal": "internal",
+		})
+		_, err := controllerutil.CreateOrPatch(ctx, k8sClient, valid, func() error { return nil })
+		Expect(err).NotTo(HaveOccurred())
+		DeferCleanup(func() {
+			_ = k8sClient.Delete(ctx, valid)
+		})
+
+		for _, endpoint := range []string{"public", "internal"} {
+			portNames := map[string]string{"public": "public", "internal": "internal"}
+			portNames[endpoint] = "wrong"
+			invalid := designateWithServicePortNames("designate-port-name-create-"+endpoint, portNames)
+			_, err := controllerutil.CreateOrPatch(ctx, k8sClient, invalid, func() error { return nil })
+			if err == nil {
+				DeferCleanup(func() {
+					_ = k8sClient.Delete(ctx, invalid)
+				})
+			}
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("must be \"" + endpoint + "\""))
+
+			err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+				current := &unstructured.Unstructured{}
+				current.SetGroupVersionKind(valid.GroupVersionKind())
+				if err := k8sClient.Get(ctx, types.NamespacedName{
+					Namespace: namespace, Name: valid.GetName(),
+				}, current); err != nil {
+					return err
+				}
+				setDesignateServicePortName(current, endpoint, "wrong")
+				return k8sClient.Update(ctx, current)
+			})
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("must be \"" + endpoint + "\""))
+		}
+	})
+
 	It("rejects update to deprecated rabbitMqClusterName field", func() {
 		spec := GetDefaultDesignateSpec(0, 0, 0)
 		spec["rabbitMqClusterName"] = "rabbitmq"
